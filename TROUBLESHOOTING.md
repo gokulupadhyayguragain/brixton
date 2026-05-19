@@ -590,6 +590,6 @@ Save as `diagnose.sh` and run: `bash diagnose.sh`
 ---
 
 **Can't find solution?** 
-- Check all 3 docs: README.md, EC2_DEPLOYMENT.md, QUICK_REFERENCE.md
+- Check all 3 docs: README.md, START_HERE_WINDOWS.md, QUICK_REFERENCE.md
 - Review the API_DOCS.md for endpoint details
-- Check ARCHITECTURE.md for multi-instance setup
+- Check WINDOWS_DEPLOYMENT_GUIDE.md for full deployment flow

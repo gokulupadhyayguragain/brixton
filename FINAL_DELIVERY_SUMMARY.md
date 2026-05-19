@@ -41,10 +41,10 @@
 ### ✅ Documentation (7 New/Updated Files)
 1. **START_HERE_WINDOWS.md** ⭐ Simple 5-step guide
 2. **WINDOWS_DEPLOYMENT_GUIDE.md** ⭐ Detailed instructions
-3. **WINDOWS_DEPLOYMENT_COMPLETE.md** - Summary of changes
-4. **WINDOWS_READY_FINAL.md** - This file
-5. **INSTRUCTOR_DELIVERY_GUIDE.md** - How to deliver
-6. Updated START_HERE.md - Now Windows-focused
+3. **INSTRUCTOR_DELIVERY_GUIDE.md** - How to deliver
+4. **FINAL_DELIVERY_SUMMARY.md** - This summary
+5. Added **ec2-user-data.sh** - Zero-touch EC2 automation
+6. Updated README.md - Clean project overview
 7. Updated deploy-aws.sh - Simplified for IP-only
 
 ---
@@ -90,7 +90,7 @@ brixton-friends.zip
 │
 ├── 📄 QUICK_REFERENCE.md        Git Bash commands
 ├── 📄 TROUBLESHOOTING.md        Problem solving
-├── 📄 AWS_DEPLOYMENT_COMPLETE.md Full reference
+├── 📄 ec2-user-data.sh          Zero-touch EC2 user-data script
 ├── 📄 API_DOCS.md               API documentation
 ├── 📄 README.md                 Project overview
 │
@@ -163,12 +163,13 @@ Done in 10 minutes!
 - 1 Database (complete)
 - 2 Docker setups (working)
 - 1 Deploy script (simplified)
-- 13+ Documentation files
+- 9 Documentation files
 - **= Everything to succeed** ✓
 
 ### New This Session:
-- 5 Windows-specific guides
+- 3 Windows-specific guides
 - 1 ZIP creation script
+- 1 EC2 user-data automation script
 - Simplified deploy-aws.sh
 - This summary file
 
@@ -218,7 +219,7 @@ Before sending to students:
 
 **For Instructors:**
 - INSTRUCTOR_DELIVERY_GUIDE.md
-- WINDOWS_READY_FINAL.md (this file)
+- FINAL_DELIVERY_SUMMARY.md (this file)
 
 ---
 
@@ -242,7 +243,7 @@ unzip -t brixton-friends.zip
 ### To Support Students:
 1. "Read START_HERE_WINDOWS.md"
 2. "Create AWS account"
-3. "Follow 5 steps"
+3. "Use EC2 user-data for full automation or follow 5 steps"
 4. "Ask if stuck"
 
 ### To Celebrate:

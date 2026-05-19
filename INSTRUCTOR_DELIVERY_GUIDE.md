@@ -83,7 +83,7 @@ brixton-friends.zip/
 ├── WINDOWS_DEPLOYMENT_GUIDE.md   ← Detailed instructions
 ├── QUICK_REFERENCE.md            ← Commands
 ├── TROUBLESHOOTING.md            ← Problem solving
-├── AWS_DEPLOYMENT_COMPLETE.md    ← Full reference
+├── README.md                     ← Full reference
 └── [other docs]
 ```
 

@@ -11,6 +11,28 @@ You have a complete social network app. Just 5 simple steps to make it live:
 5. **Run deploy script**
 6. **Done! Visit your IP in browser** 🎉
 
+Or use the fully automated method below (no SCP, no SSH).
+
+---
+
+## 🤖 Fully Automated EC2 Method (No SCP/SSH)
+
+If you want true zero-touch deployment:
+
+1. Launch EC2 with Ubuntu 22.04 LTS
+2. In Advanced details -> User data, paste:
+
+```bash
+#!/bin/bash
+curl -fsSL https://raw.githubusercontent.com/gokulupadhyayguragain/brixton/main/ec2-user-data.sh | bash
+```
+
+3. Launch instance
+4. Wait 10-15 minutes
+5. Open `http://YOUR_EC2_PUBLIC_IP`
+
+That is all. The instance will auto-clone from GitHub and auto-deploy everything.
+
 ---
 
 ## 📋 You Need:
@@ -175,7 +197,7 @@ Your app is now **LIVE** and **RUNNING 24/7**!
 - **Full Windows guide:** `WINDOWS_DEPLOYMENT_GUIDE.md`
 - **Common issues:** `TROUBLESHOOTING.md`
 - **All commands:** `QUICK_REFERENCE.md`
-- **Full AWS guide:** `AWS_DEPLOYMENT_COMPLETE.md`
+- **Project overview:** `README.md`
 
 ---
 
@@ -243,7 +265,7 @@ Check these files (in order of usefulness):
 1. **WINDOWS_DEPLOYMENT_GUIDE.md** - Detailed Windows instructions
 2. **TROUBLESHOOTING.md** - Common problems & solutions
 3. **QUICK_REFERENCE.md** - All useful commands
-4. **AWS_DEPLOYMENT_COMPLETE.md** - Full technical guide
+4. **README.md** - Project overview
 
 ---
 

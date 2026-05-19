@@ -49,10 +49,13 @@ fi
 print_success "Running as root"
 
 # Variables (IP-only, no domain)
-PROJECT_DIR="/opt/brixton-friends"
+PROJECT_DIR="${PROJECT_DIR:-/opt/brixton-friends}"
+REPO_URL="${REPO_URL:-https://github.com/gokulupadhyayguragain/brixton.git}"
+REPO_BRANCH="${REPO_BRANCH:-main}"
 
 print_warning "Project Dir: $PROJECT_DIR"
 print_warning "Mode: IP-only (no domain/SSL)"
+print_warning "Repo: $REPO_URL ($REPO_BRANCH)"
 
 # ============================================================================
 # STEP 1: Update System
@@ -65,6 +68,7 @@ apt-get install -y \
     curl \
     wget \
     git \
+  openssl \
     unzip \
     zip \
     build-essential \
@@ -94,14 +98,18 @@ print_success "Docker & Docker Compose installed"
 # ============================================================================
 print_header "STEP 3: Cloning Repository"
 
-if [ -d "$PROJECT_DIR" ]; then
-    print_warning "Project directory already exists. Pulling latest changes..."
-    cd "$PROJECT_DIR"
-    git pull origin main
+if [ -d "$PROJECT_DIR/.git" ]; then
+  print_warning "Existing git repository found. Pulling latest changes..."
+  cd "$PROJECT_DIR"
+  git fetch origin
+  git checkout "$REPO_BRANCH"
+  git pull origin "$REPO_BRANCH"
+elif [ -f "$PROJECT_DIR/deploy-aws.sh" ] && [ -d "$PROJECT_DIR/backend" ] && [ -d "$PROJECT_DIR/frontend" ]; then
+  print_warning "Project files already present. Skipping clone and using local files."
 else
-    print_warning "You need to set REPO_URL in this script!"
-    print_warning "Creating project structure manually..."
-    mkdir -p "$PROJECT_DIR"
+  print_warning "Cloning repository to $PROJECT_DIR ..."
+  rm -rf "$PROJECT_DIR"
+  git clone --branch "$REPO_BRANCH" "$REPO_URL" "$PROJECT_DIR"
 fi
 
 cd "$PROJECT_DIR"
@@ -138,6 +146,10 @@ JWT_EXPIRE=30d
 
 # ============ CORS (Local Network Only) ============
 CORS_ORIGIN=*
+
+# ============ FRONTEND RUNTIME ============
+REACT_APP_API_URL=/api
+REACT_APP_SOCKET_URL=/
 
 # ============ TIMEZONE ============
 TZ=UTC
@@ -457,7 +469,19 @@ print_success "Backup script created and scheduled"
 print_header "✓ DEPLOYMENT COMPLETE!"
 
 # Get public IP
-PUBLIC_IP=$(curl -s http://169.254.169.254/latest/meta-data/public-ipv4)
+TOKEN=$(curl -fsX PUT "http://169.254.169.254/latest/api/token" \
+  -H "X-aws-ec2-metadata-token-ttl-seconds: 21600" || true)
+
+if [ -n "$TOKEN" ]; then
+    PUBLIC_IP=$(curl -fs -H "X-aws-ec2-metadata-token: $TOKEN" \
+      http://169.254.169.254/latest/meta-data/public-ipv4 || true)
+else
+    PUBLIC_IP=$(curl -fs http://169.254.169.254/latest/meta-data/public-ipv4 || true)
+fi
+
+if [ -z "$PUBLIC_IP" ]; then
+    PUBLIC_IP="<your-ec2-public-ip>"
+fi
 
 echo ""
 echo -e "${GREEN}========== ACCESS YOUR APP ==========${NC}"

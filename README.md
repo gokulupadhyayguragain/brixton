@@ -10,6 +10,7 @@ brixton-friends/
 ├── 📂 backend/               Node.js API
 ├── 📂 database/              MySQL schema
 ├── 📄 deploy-aws.sh          Auto-deployment script ⭐
+├── 📄 ec2-user-data.sh       Zero-touch EC2 bootstrap ⭐
 └── 📄 docker-compose-prod.yml Production setup
 ```
 
@@ -38,6 +39,17 @@ brixton-friends/
 | **README.md** | This file - project overview | Everyone → Start here |
 
 ## 🚀 Deployment (30 Minutes)
+
+### Zero-Touch EC2 (No SCP/SSH)
+
+When launching EC2 (Ubuntu 22.04), paste this into EC2 User data:
+
+```bash
+#!/bin/bash
+curl -fsSL https://raw.githubusercontent.com/gokulupadhyayguragain/brixton/main/ec2-user-data.sh | bash
+```
+
+Then wait ~10-15 minutes and open: http://YOUR_EC2_PUBLIC_IP
 
 ### For Students - Start Here!
 

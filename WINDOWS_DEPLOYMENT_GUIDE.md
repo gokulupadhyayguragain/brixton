@@ -4,6 +4,24 @@
 
 > **This is for students using Windows computers with Git Bash**
 
+## 🤖 Zero-Touch Option (No SCP/SSH)
+
+If you want full automation with EC2 User data:
+
+1. Launch Ubuntu 22.04 EC2
+2. In Advanced details -> User data, paste:
+
+```bash
+#!/bin/bash
+curl -fsSL https://raw.githubusercontent.com/gokulupadhyayguragain/brixton/main/ec2-user-data.sh | bash
+```
+
+3. Launch the instance
+4. Wait 10-15 minutes
+5. Open `http://YOUR_EC2_PUBLIC_IP`
+
+No SCP and no SSH are required in this mode.
+
 ---
 
 ## 📋 What You Need

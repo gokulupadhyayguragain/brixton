@@ -153,7 +153,7 @@ docker-compose ps
 curl http://localhost:5000/api/health
 ```
 
-Full guide: See `EC2_DEPLOYMENT.md`
+Full guide: See `WINDOWS_DEPLOYMENT_GUIDE.md`
 
 ---
 
@@ -195,8 +195,8 @@ Full guide: See `EC2_DEPLOYMENT.md`
 ## 📞 Support Resources
 
 - **README.md** - Full documentation
-- **EC2_DEPLOYMENT.md** - Production deployment guide
-- **ARCHITECTURE.md** - System design & multi-instance setup
+- **START_HERE_WINDOWS.md** - Fast deployment guide
+- **WINDOWS_DEPLOYMENT_GUIDE.md** - Detailed deployment guide
 - **API Documentation** - Inline in route files
 
 ---
@@ -207,8 +207,8 @@ Full guide: See `EC2_DEPLOYMENT.md`
 2. ✅ Create account at http://localhost:3000
 3. ✅ Test features (search, add friends, chat)
 4. ✅ Review database: `docker-compose exec mysql mysql`
-5. ✅ Deploy to EC2: See EC2_DEPLOYMENT.md
-6. ✅ Enable federation: See ARCHITECTURE.md
+5. ✅ Deploy to EC2: See START_HERE_WINDOWS.md
+6. ✅ Troubleshoot issues: See TROUBLESHOOTING.md
 
 ---
 
