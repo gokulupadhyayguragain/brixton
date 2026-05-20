@@ -11,8 +11,22 @@ export REPO_URL="https://github.com/gokulupadhyayguragain/brixton.git"
 export REPO_BRANCH="main"
 export PROJECT_DIR="/opt/brixton-friends"
 
-apt-get update
-apt-get install -y git curl
+retry() {
+  local attempts=$1
+  local wait_secs=$2
+  shift 2
+  local n=1
+  until "$@"; do
+    if [ "$n" -ge "$attempts" ]; then
+      return 1
+    fi
+    n=$((n + 1))
+    sleep "$wait_secs"
+  done
+}
+
+retry 10 15 apt-get update
+retry 5 15 apt-get install -y git curl
 
 if [ -d "$PROJECT_DIR/.git" ]; then
   cd "$PROJECT_DIR"
@@ -26,3 +40,5 @@ fi
 
 chmod +x "$PROJECT_DIR/deploy-aws.sh"
 bash "$PROJECT_DIR/deploy-aws.sh"
+
+echo "Brixton deployment completed at $(date -u +%Y-%m-%dT%H:%M:%SZ)" > /var/log/brixton-success.log

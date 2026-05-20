@@ -190,6 +190,11 @@ Your app is now **LIVE** and **RUNNING 24/7**!
 | Website won't load | Wait a few minutes, server might still be starting |
 | Can't SSH | Check your IP is correct, check security group allows port 22 |
 
+If using EC2 User data automation, check logs on instance:
+- `/var/log/cloud-init-output.log`
+- `/var/log/brixton-userdata.log`
+- `/var/log/brixton-success.log`
+
 ---
 
 ## 📚 More Help

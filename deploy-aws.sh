@@ -6,7 +6,7 @@
 # Time: ~10-15 minutes
 #
 
-set -e  # Exit on any error
+set -euo pipefail  # Exit on errors and undefined vars
 
 # Colors for output
 RED='\033[0;31m'
@@ -33,6 +33,20 @@ print_error() {
 
 print_warning() {
     echo -e "${YELLOW}⚠ $1${NC}"
+}
+
+retry() {
+  local attempts=$1
+  local wait_secs=$2
+  shift 2
+  local n=1
+  until "$@"; do
+    if [ "$n" -ge "$attempts" ]; then
+      return 1
+    fi
+    n=$((n + 1))
+    sleep "$wait_secs"
+  done
 }
 
 # Verify we're on Ubuntu
@@ -62,13 +76,13 @@ print_warning "Repo: $REPO_URL ($REPO_BRANCH)"
 # ============================================================================
 print_header "STEP 1: Updating System Packages"
 
-apt-get update
-apt-get upgrade -y
-apt-get install -y \
+retry 5 10 apt-get update
+retry 3 10 apt-get upgrade -y
+retry 5 10 apt-get install -y \
     curl \
     wget \
     git \
-  openssl \
+    openssl \
     unzip \
     zip \
     build-essential \
@@ -82,15 +96,17 @@ print_success "System packages updated"
 print_header "STEP 2: Installing Docker & Docker Compose"
 
 # Install Docker
-curl -fsSL https://get.docker.com -o /tmp/get-docker.sh
-sh /tmp/get-docker.sh
+retry 5 10 curl -fsSL https://get.docker.com -o /tmp/get-docker.sh
+retry 3 10 sh /tmp/get-docker.sh
 print_success "Docker installed"
 
 # Install Docker Compose plugin
-apt-get install -y docker-compose-plugin
+retry 5 10 apt-get install -y docker-compose-plugin
 
 # Add ubuntu user to docker group (so no sudo needed)
-usermod -aG docker ubuntu
+if id -u ubuntu >/dev/null 2>&1; then
+  usermod -aG docker ubuntu
+fi
 print_success "Docker & Docker Compose installed"
 
 # ============================================================================
@@ -158,6 +174,12 @@ EOF
 print_success "Environment file created at $PROJECT_DIR/.env"
 print_warning "Database Password: $DB_PASSWORD (save this!)"
 print_warning "JWT Secret: $JWT_SECRET (save this!)"
+
+# Export .env values into current shell for subsequent checks/scripts.
+set -a
+# shellcheck disable=SC1090
+. "$PROJECT_DIR/.env"
+set +a
 
 # ============================================================================
 # STEP 5: Create/Update docker-compose.yml
@@ -358,10 +380,10 @@ print_header "STEP 8: Starting Docker Services"
 cd "$PROJECT_DIR"
 
 # Use production compose file
-docker compose -f docker-compose-prod.yml build --no-cache
+retry 3 15 docker compose -f docker-compose-prod.yml build --no-cache
 print_success "Docker images built"
 
-docker compose -f docker-compose-prod.yml up -d
+retry 3 15 docker compose -f docker-compose-prod.yml up -d
 print_success "Docker services started"
 
 # Wait for services to be ready
@@ -439,13 +461,19 @@ cat > "$BACKUP_DIR/backup.sh" << 'EOF'
 #!/bin/bash
 # Backup script - Run daily via cron
 
+set -euo pipefail
+
 BACKUP_DIR="/opt/brixton-backups"
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 BACKUP_FILE="$BACKUP_DIR/backup_$TIMESTAMP.sql"
 
+set -a
+. /opt/brixton-friends/.env
+set +a
+
 # Backup database
 docker compose -f /opt/brixton-friends/docker-compose-prod.yml exec -T mysql \
-    mysqldump -u"${DB_USER}" -p"${DB_PASSWORD}" brixton_friends > "$BACKUP_FILE"
+  mysqldump -u"${DB_USER}" -p"${DB_PASSWORD}" "${DB_NAME}" > "$BACKUP_FILE"
 
 # Compress
 gzip "$BACKUP_FILE"
