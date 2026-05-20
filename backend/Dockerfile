@@ -6,7 +6,9 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install dependencies
-RUN npm install
+ENV npm_config_audit=false
+ENV npm_config_fund=false
+RUN npm install --omit=dev
 
 # Copy app source
 COPY . .

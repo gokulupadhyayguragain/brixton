@@ -10,6 +10,10 @@ export DEBIAN_FRONTEND=noninteractive
 export REPO_URL="https://github.com/gokulupadhyayguragain/brixton.git"
 export REPO_BRANCH="main"
 export PROJECT_DIR="/opt/brixton-friends"
+export DOCKER_BUILDKIT=1
+export COMPOSE_DOCKER_CLI_BUILD=1
+export npm_config_audit=false
+export npm_config_fund=false
 
 retry() {
   local attempts=$1

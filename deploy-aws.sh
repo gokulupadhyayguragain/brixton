@@ -67,6 +67,10 @@ print_success "Running as root"
 PROJECT_DIR="${PROJECT_DIR:-/opt/brixton-friends}"
 REPO_URL="${REPO_URL:-https://github.com/gokulupadhyayguragain/brixton.git}"
 REPO_BRANCH="${REPO_BRANCH:-main}"
+export DOCKER_BUILDKIT=1
+export COMPOSE_DOCKER_CLI_BUILD=1
+export npm_config_audit=false
+export npm_config_fund=false
 
 print_warning "Project Dir: $PROJECT_DIR"
 print_warning "Mode: IP-only (no domain/SSL)"
