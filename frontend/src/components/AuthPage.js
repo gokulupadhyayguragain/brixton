@@ -20,6 +20,9 @@ const AuthPage = ({ onLoginSuccess }) => {
         const response = await axios.post('/api/auth/login', { email, password });
         localStorage.setItem('token', response.data.token);
         localStorage.setItem('userId', response.data.userId);
+        if (response.data.user) {
+          localStorage.setItem('user', JSON.stringify(response.data.user));
+        }
         onLoginSuccess(response.data);
       } else {
         const response = await axios.post('/api/auth/register', {
@@ -30,6 +33,15 @@ const AuthPage = ({ onLoginSuccess }) => {
         });
         localStorage.setItem('token', response.data.token);
         localStorage.setItem('userId', response.data.userId);
+        localStorage.setItem(
+          'user',
+          JSON.stringify({
+            id: response.data.userId,
+            username,
+            email,
+            full_name: fullName
+          })
+        );
         onLoginSuccess(response.data);
       }
     } catch (err) {

@@ -6,23 +6,38 @@ import ChatWindow from './components/ChatWindow';
 import './App.css';
 
 function App() {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(() => {
+    const savedUser = localStorage.getItem('user');
+    if (!savedUser) return null;
+
+    try {
+      return JSON.parse(savedUser);
+    } catch (e) {
+      return null;
+    }
+  });
   const [selectedFriend, setSelectedFriend] = useState(null);
   const token = localStorage.getItem('token');
   const userId = localStorage.getItem('userId');
 
   const handleLoginSuccess = (userData) => {
-    setUser(userData);
+    const normalizedUser = userData?.user || {
+      id: userData?.userId ? parseInt(userData.userId, 10) : null
+    };
+
+    localStorage.setItem('user', JSON.stringify(normalizedUser));
+    setUser(normalizedUser);
   };
 
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('userId');
+    localStorage.removeItem('user');
     setUser(null);
     setSelectedFriend(null);
   };
 
-  if (!token || !user) {
+  if (!token || !userId) {
     return <AuthPage onLoginSuccess={handleLoginSuccess} />;
   }
 
