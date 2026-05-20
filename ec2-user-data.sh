@@ -26,7 +26,36 @@ retry() {
 }
 
 retry 10 15 apt-get update
-retry 5 15 apt-get install -y git curl
+retry 5 15 apt-get install -y git curl nginx
+
+# Replace default Nginx page immediately so users know automation is running.
+cat > /var/www/html/index.html << 'EOF'
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>BRIXTON Friends Deploying</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #111; color: #f3f3f3; margin: 0; display: grid; place-items: center; height: 100vh; }
+    .card { max-width: 620px; padding: 24px; border: 1px solid #333; border-radius: 10px; background: #1b1b1b; }
+    h1 { margin-top: 0; color: #7ee787; }
+    code { color: #f2cc60; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>BRIXTON Friends is deploying...</h1>
+    <p>Server bootstrap is in progress. This can take 10-20 minutes on first launch.</p>
+    <p>If this page stays longer than 25 minutes, check:</p>
+    <p><code>/var/log/cloud-init-output.log</code><br/><code>/var/log/brixton-userdata.log</code></p>
+  </div>
+</body>
+</html>
+EOF
+
+systemctl enable nginx
+systemctl restart nginx
 
 if [ -d "$PROJECT_DIR/.git" ]; then
   cd "$PROJECT_DIR"
@@ -39,6 +68,6 @@ else
 fi
 
 chmod +x "$PROJECT_DIR/deploy-aws.sh"
-bash "$PROJECT_DIR/deploy-aws.sh"
+retry 3 20 bash "$PROJECT_DIR/deploy-aws.sh"
 
 echo "Brixton deployment completed at $(date -u +%Y-%m-%dT%H:%M:%SZ)" > /var/log/brixton-success.log
