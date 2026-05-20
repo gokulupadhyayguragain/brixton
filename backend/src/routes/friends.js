@@ -7,19 +7,22 @@ const router = express.Router();
 // Send friend request
 router.post('/request', verifyToken, async (req, res) => {
   try {
-    const { recipient_id } = req.body;
+    const recipientId = Number(req.body.recipient_id);
 
-    if (!recipient_id) {
+    if (!Number.isInteger(recipientId) || recipientId <= 0) {
       return res.status(400).json({ error: 'Recipient ID required' });
     }
 
-    if (req.userId === recipient_id) {
+    if (Number(req.userId) === recipientId) {
       return res.status(400).json({ error: 'Cannot add yourself' });
     }
 
-    const requestId = await Friend.sendRequest(req.userId, recipient_id);
+    const requestId = await Friend.sendRequest(req.userId, recipientId);
     res.status(201).json({ message: 'Friend request sent', requestId });
   } catch (error) {
+    if (error.code === 'ER_DUP_ENTRY') {
+      return res.status(409).json({ error: 'Request already exists' });
+    }
     res.status(500).json({ error: 'Failed to send friend request', message: error.message });
   }
 });
@@ -27,8 +30,8 @@ router.post('/request', verifyToken, async (req, res) => {
 // Accept friend request
 router.post('/accept', verifyToken, async (req, res) => {
   try {
-    const { request_id } = req.body;
-    const success = await Friend.acceptRequest(request_id);
+    const requestId = Number(req.body.request_id);
+    const success = await Friend.acceptRequest(requestId, req.userId);
 
     if (!success) {
       return res.status(404).json({ error: 'Request not found' });
@@ -43,8 +46,8 @@ router.post('/accept', verifyToken, async (req, res) => {
 // Reject friend request
 router.post('/reject', verifyToken, async (req, res) => {
   try {
-    const { request_id } = req.body;
-    const success = await Friend.rejectRequest(request_id);
+    const requestId = Number(req.body.request_id);
+    const success = await Friend.rejectRequest(requestId, req.userId);
 
     if (!success) {
       return res.status(404).json({ error: 'Request not found' });

@@ -10,10 +10,12 @@ class Friend {
     return result.insertId;
   }
 
-  static async acceptRequest(requestId) {
+  static async acceptRequest(requestId, recipientUserId) {
     const [request] = await db.execute(
-      'SELECT sender_id, recipient_id FROM friend_requests WHERE id = ?',
-      [requestId]
+      `SELECT sender_id, recipient_id
+       FROM friend_requests
+       WHERE id = ? AND recipient_id = ? AND status = 'pending'`,
+      [requestId, recipientUserId]
     );
 
     if (!request.length) return false;
@@ -22,11 +24,11 @@ class Friend {
 
     // Create bidirectional friendship
     await db.execute(
-      'INSERT INTO friendships (user_id, friend_id, created_at) VALUES (?, ?, NOW())',
+      'INSERT IGNORE INTO friendships (user_id, friend_id, created_at) VALUES (?, ?, NOW())',
       [sender_id, recipient_id]
     );
     await db.execute(
-      'INSERT INTO friendships (user_id, friend_id, created_at) VALUES (?, ?, NOW())',
+      'INSERT IGNORE INTO friendships (user_id, friend_id, created_at) VALUES (?, ?, NOW())',
       [recipient_id, sender_id]
     );
 
@@ -39,9 +41,13 @@ class Friend {
     return true;
   }
 
-  static async rejectRequest(requestId) {
-    const query = 'UPDATE friend_requests SET status = ? WHERE id = ?';
-    const [result] = await db.execute(query, ['rejected', requestId]);
+  static async rejectRequest(requestId, recipientUserId) {
+    const query = `
+      UPDATE friend_requests
+      SET status = ?
+      WHERE id = ? AND recipient_id = ? AND status = 'pending'
+    `;
+    const [result] = await db.execute(query, ['rejected', requestId, recipientUserId]);
     return result.affectedRows > 0;
   }
 

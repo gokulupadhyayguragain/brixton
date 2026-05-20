@@ -36,15 +36,39 @@ class User {
     return result.affectedRows > 0;
   }
 
-  static async searchUsers(searchTerm, limit = 20) {
+  static async searchUsers(searchTerm, currentUserId, limit = 20) {
     const query = `
-      SELECT id, username, email, full_name, latitude, longitude 
-      FROM users 
-      WHERE username LIKE ? OR full_name LIKE ? 
+      SELECT u.id, u.username, u.email, u.full_name, u.latitude, u.longitude
+      FROM users u
+      WHERE (u.username LIKE ? OR u.full_name LIKE ?)
+        AND u.id <> ?
+        AND NOT EXISTS (
+          SELECT 1
+          FROM friendships f
+          WHERE f.user_id = ? AND f.friend_id = u.id
+        )
+        AND NOT EXISTS (
+          SELECT 1
+          FROM friend_requests fr
+          WHERE (
+            (fr.sender_id = ? AND fr.recipient_id = u.id)
+            OR
+            (fr.sender_id = u.id AND fr.recipient_id = ?)
+          )
+          AND fr.status = 'pending'
+        )
       LIMIT ?
     `;
     const searchPattern = `%${searchTerm}%`;
-    const [rows] = await db.execute(query, [searchPattern, searchPattern, limit]);
+    const [rows] = await db.execute(query, [
+      searchPattern,
+      searchPattern,
+      currentUserId,
+      currentUserId,
+      currentUserId,
+      currentUserId,
+      limit
+    ]);
     return rows;
   }
 }
