@@ -72,13 +72,16 @@ print_warning "Project Dir: $PROJECT_DIR"
 print_warning "Mode: IP-only (no domain/SSL)"
 print_warning "Repo: $REPO_URL ($REPO_BRANCH)"
 
+# Persist deployment logs for postmortem debugging.
+exec > >(tee -a /var/log/brixton-deploy.log) 2>&1
+
 # ============================================================================
 # STEP 1: Update System
 # ============================================================================
 print_header "STEP 1: Updating System Packages"
 
 retry 5 10 apt-get update
-retry 3 10 apt-get upgrade -y
+# Avoid long/interactive full upgrades in user-data on small instances.
 retry 5 10 apt-get install -y \
     curl \
     wget \
@@ -90,6 +93,24 @@ retry 5 10 apt-get install -y \
     software-properties-common
 
 print_success "System packages updated"
+
+# ============================================================================
+# STEP 1B: Prepare Memory (Swap)
+# ============================================================================
+print_header "STEP 1B: Preparing Memory (Swap)"
+
+if ! swapon --show | grep -q '/swapfile'; then
+  fallocate -l 2G /swapfile || dd if=/dev/zero of=/swapfile bs=1M count=2048
+  chmod 600 /swapfile
+  mkswap /swapfile
+  swapon /swapfile
+  if ! grep -q '^/swapfile ' /etc/fstab; then
+    echo '/swapfile none swap sw 0 0' >> /etc/fstab
+  fi
+  print_success "2GB swap configured"
+else
+  print_success "Swap already configured"
+fi
 
 # ============================================================================
 # STEP 2: Install Docker
@@ -381,7 +402,7 @@ print_header "STEP 8: Starting Docker Services"
 cd "$PROJECT_DIR"
 
 # Use production compose file
-retry 3 15 docker compose -f docker-compose-prod.yml build --no-cache
+retry 3 15 docker compose -f docker-compose-prod.yml build
 print_success "Docker images built"
 
 retry 3 15 docker compose -f docker-compose-prod.yml up -d

@@ -8,6 +8,8 @@ RUN npm install
 
 COPY . .
 
+ENV NODE_OPTIONS=--max-old-space-size=512
+
 RUN npm run build
 
 # Production stage

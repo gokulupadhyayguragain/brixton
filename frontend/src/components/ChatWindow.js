@@ -10,7 +10,10 @@ const ChatWindow = ({ friend, userId, token }) => {
 
   useEffect(() => {
     fetchMessages();
-    const newSocket = io('http://localhost:5000');
+    const newSocket = io({
+      path: '/socket.io',
+      transports: ['websocket', 'polling']
+    });
     setSocket(newSocket);
 
     newSocket.on('receive_message', (data) => {
